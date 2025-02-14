@@ -1,0 +1,82 @@
+@layer base {
+/* Dialog Styles */
+:where:is(ui-dialog, ui-dialog-trigger, ui-dialog-content, ui-dialog-close, ui-dialog-title, ui-dialog-description) {
+  display: block;
+}
+
+ui-dialog-content dialog[open] {
+  opacity: 1;
+  display: block;
+}
+
+ui-dialog:not([modal='false']) ui-dialog-content dialog {
+  position: fixed;
+  inset-block: 0;
+}
+
+ui-dialog-content dialog {
+  margin: auto;
+  display: none;
+  opacity: 0;
+  transition:
+    opacity 0.15s ease-out,
+    overlay 0.15s ease-out allow-discrete,
+    display 0.15s ease-out allow-discrete;
+}
+
+@starting-style {
+  ui-dialog-content dialog[open] {
+    opacity: 0;
+  }
+}
+
+ui-dialog-content dialog::backdrop {
+  background-color: rgb(0 0 0 / 0%);
+  transition:
+    display 0.15s allow-discrete,
+    overlay 0.15s allow-discrete,
+    background-color 0.15s;
+}
+
+ui-dialog-content dialog[open]::backdrop {
+  background-color: rgb(0 0 0 / 50%);
+}
+
+@starting-style {
+  ui-dialog-content dialog[open]::backdrop {
+    background-color: rgb(0 0 0 / 0%);
+  }
+}
+
+/* Accordion Styles */
+:where(ui-accordion, ui-accordion-item, ui-accordion-trigger, ui-accordion-content) {
+  display: block;
+}
+ui-accordion {
+  --accordion-content-height: auto;
+}
+ui-accordion-content {
+  height: var(--accordion-content-height);
+  overflow: hidden;
+  transition: height 150ms ease-out;
+}
+
+ui-accordion-content[data-starting-style],
+ui-accordion-content[data-ending-style] {
+  height: 0;
+}
+ui-accordion-content[hidden] {
+  content-visibility: hidden;
+}
+/* Tabs Style */
+:where(ui-tabs, ui-tabs-list, ui-tabs-trigger, ui-tabs-panel) {
+  display: block;
+}
+ui-tabs-panel {
+  display: none;
+}
+ui-tabs-panel[data-state='active'] {
+  display: block;
+}
+
+}
