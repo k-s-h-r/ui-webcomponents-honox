@@ -67,7 +67,7 @@ export default function AccordionComponents() {
                     {item} {index + 1}
                   </button>
                 </ui-accordion-trigger>
-                <ui-accordion-content>
+                <ui-accordion-content cloak>
                   <div class="p-2">
                     {item}
                     {index + 1} content
@@ -93,7 +93,7 @@ export default function AccordionComponents() {
                   </button>
                 </ui-accordion-trigger>
               </h3>
-              <ui-accordion-content>
+              <ui-accordion-content cloak>
                 <pre>
                   <code class="rounded-xl bg-gray-800 text-white block p-4 text-sm">
                     {`<ui-accordion mode="${multipleMode ? "multiple" : "single"}"${collapsibleMode ? " collapsible" : ""}>

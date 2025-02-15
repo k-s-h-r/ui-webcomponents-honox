@@ -93,7 +93,7 @@ export default function DialogComponents() {
                   </button>
                 </ui-accordion-trigger>
               </h3>
-              <ui-accordion-content>
+              <ui-accordion-content cloak>
                 <pre>
                   <code class="rounded-xl bg-gray-800 text-white block p-4 text-sm">
                     {`<ui-dialog${modalMode ? "" : ' modal="false"'}${closedby !== "undefined" ? ` closedby="${closedby}"` : ""}>
