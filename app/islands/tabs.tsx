@@ -69,7 +69,12 @@ export default function DialogComponents() {
               class={cn("bg-white border rounded-b border-gray-300 -mt-px p-4")}
             >
               {tabsList.map((item, index) => (
-                <ui-tabs-panel key={item} value={item.value}>
+                <ui-tabs-panel
+                  key={item}
+                  value={item.value}
+                  cloak={index === 0 ? "" : undefined}
+                  data-state={index === 0 ? "active" : "inactive"}
+                >
                   {item.value} content
                 </ui-tabs-panel>
               ))}
@@ -92,7 +97,7 @@ export default function DialogComponents() {
                   </button>
                 </ui-accordion-trigger>
               </h3>
-              <ui-accordion-content>
+              <ui-accordion-content cloak>
                 <pre>
                   <code class="rounded-xl bg-gray-800 text-white block p-4 text-sm">
                     {`<ui-tabs>

@@ -1,5 +1,5 @@
 /* Dialog Styles */
-:where:is(
+:where(
     ui-dialog,
     ui-dialog-trigger,
     ui-dialog-content,
@@ -8,6 +8,9 @@
     ui-dialog-description
   ) {
   display: block;
+  &[cloak] {
+    display: none;
+  }
 }
 
 ui-dialog-content dialog[open] {
@@ -58,6 +61,9 @@ ui-dialog-content dialog[open]::backdrop {
     ui-accordion-content
   ) {
   display: block;
+  &[cloak] {
+    display: none;
+  }
 }
 ui-accordion {
   --accordion-content-height: auto;

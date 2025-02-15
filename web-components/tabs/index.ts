@@ -190,10 +190,6 @@ export class UiTabsList extends HTMLElement {
 
 export class UiTabsTrigger extends HTMLElement {
   private isReady = false;
-  // tabs-trigger, tabs-trigger buttonの管理
-  // aria属性, role="tab" を設定
-  // value, disabled
-  // data-state, data-disabeld
   private $root: UiTabs | null = null;
   private $button: HTMLButtonElement | null = null;
   private unsubscribe: (() => void) | undefined = undefined;
@@ -207,10 +203,6 @@ export class UiTabsTrigger extends HTMLElement {
       return;
     }
 
-    // buttonとcontentのid管理を考える必要がある
-    // triggerをベースにbuttonとcontentを調べるか
-    // rootでtabを管理して初期値は初期生成を利用、button, contentが更新されたらtabを更新してsubscribeでbutton, contentを更新する
-
     this.$button = this.querySelector("button:not(:scope ui-tabs *)");
     this.value = this.getAttribute("value") || "";
     this.disabled = this.hasAttribute("disabled");
@@ -218,6 +210,7 @@ export class UiTabsTrigger extends HTMLElement {
       this.$button?.id || `tabs-trigger-${Math.random().toString(36).slice(2)}`;
     const isSelected = this.$root.useRootStore.getState().value === this.value;
 
+    // TODO: tabId, panelIdの処理は整理したい
     // tabsの更新（UiTabsTriggerとUiTabsPanelでどちらが先に動作するかわからないため連携して設定）
     const { tabs } = this.$root.useRootStore.getState();
     const tab = tabs.find((tab) => tab.value === this.value);
