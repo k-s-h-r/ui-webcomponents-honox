@@ -1,12 +1,12 @@
-import { css } from "hono/css"
-import { useState } from "hono/jsx"
-import Button from "../_components/ui/button"
-import { cn } from "../lib/utils"
+import { css } from "hono/css";
+import { useState } from "hono/jsx";
+import Button from "../_components/ui/button";
+import { cn } from "../lib/utils";
 
 export default function AccordionComponents() {
-  const [accordion, setAccordion] = useState(["Accordion", "Accordion"])
-  const [multipleMode, setMultipleMode] = useState(true)
-  const [collapsibleMode, setCollapsibleMode] = useState(false)
+  const [accordion, setAccordion] = useState(["Accordion", "Accordion"]);
+  const [multipleMode, setMultipleMode] = useState(true);
+  const [collapsibleMode, setCollapsibleMode] = useState(false);
 
   return (
     <div class="grid gap-4">
@@ -114,5 +114,5 @@ export default function AccordionComponents() {
         </div>
       </div>
     </div>
-  )
+  );
 }

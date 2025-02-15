@@ -1,3 +1,3 @@
-import "./accordion"
-import "./dialog"
-import "./tabs"
+import "./accordion";
+import "./dialog";
+import "./tabs";

@@ -1,18 +1,18 @@
-import {} from "hono"
+import {} from "hono";
 
 type Head = {
-  title?: string
-}
+  title?: string;
+};
 
 declare module "hono" {
   interface Env {
     // biome-ignore lint/complexity/noBannedTypes: <explanation>
-    Variables: {}
+    Variables: {};
     // biome-ignore lint/complexity/noBannedTypes: <explanation>
-    Bindings: {}
+    Bindings: {};
   }
   type ContextRenderer = (
     content: string | Promise<string>,
     head?: Head
-  ) => Response | Promise<Response>
+  ) => Response | Promise<Response>;
 }

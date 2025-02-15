@@ -1,10 +1,10 @@
-import { css } from "hono/css"
-import { useState } from "hono/jsx"
-import Button from "../_components/ui/button"
-import { cn } from "../lib/utils"
+import { css } from "hono/css";
+import { useState } from "hono/jsx";
+import Button from "../_components/ui/button";
+import { cn } from "../lib/utils";
 
 export default function DialogComponents() {
-  const [loopMode, setLoopMode] = useState(true)
+  const [loopMode, setLoopMode] = useState(true);
   const tabsList = [
     {
       value: "Tab1"
@@ -23,7 +23,7 @@ export default function DialogComponents() {
       value: "Tab5",
       disabled: true
     }
-  ]
+  ];
 
   return (
     <div class="grid gap-4">
@@ -115,5 +115,5 @@ export default function DialogComponents() {
         </div>
       </div>
     </div>
-  )
+  );
 }

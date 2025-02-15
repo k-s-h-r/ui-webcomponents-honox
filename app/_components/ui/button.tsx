@@ -1,7 +1,7 @@
-import type { JSX, PropsWithChildren } from "hono/jsx"
-import { cn } from "../../lib/utils"
+import type { JSX, PropsWithChildren } from "hono/jsx";
+import { cn } from "../../lib/utils";
 
-type Props = {} & JSX.IntrinsicElements["button"]
+type Props = {} & JSX.IntrinsicElements["button"];
 
 export default function Component({
   children,
@@ -20,5 +20,5 @@ export default function Component({
     >
       {children}
     </button>
-  )
+  );
 }
