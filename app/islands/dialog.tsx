@@ -35,46 +35,48 @@ export default function DialogComponents() {
 
       <div class="grid gap-2">
         <h3>Example</h3>
-        <ui-dialog
-          modal={modalMode ? undefined : "false"}
-          closedby={closedby === "undefined" ? undefined : closedby}
-        >
-          <ui-dialog-trigger>
-            <button
-              type="button"
-              class={cn(
-                "text-left p-2 bg-gray-100 rounded not-disabled:cursor-pointer hover:not-disabled:bg-gray-200 border border-gray-300"
-              )}
-            >
-              Open Dialog (ModalMode: {modalMode ? "true" : "false"}, closedby:{" "}
-              {closedby})
-            </button>
-          </ui-dialog-trigger>
-          <ui-dialog-content>
-            <dialog class={cn("rounded border max-w-120 w-full")}>
-              <div class={cn("relatieve p-4 grid gap-4")}>
-                <ui-dialog-close>
-                  <button
-                    type="button"
-                    class={cn("absolute text-sm top-2 right-2")}
-                    autofocus
-                  >
-                    close
-                  </button>
-                </ui-dialog-close>
-                <div class="grid gap-2">
-                  <ui-dialog-title>
-                    <h2 class={cn("text-lg font-bold")}>Dialog Title</h2>
-                  </ui-dialog-title>
-                  <ui-dialog-description>
-                    <p class="text-sm">Dialog description</p>
-                  </ui-dialog-description>
+        <div class="p-2 bg-gray-200 rounded-lg">
+          <ui-dialog
+            modal={modalMode ? undefined : "false"}
+            closedby={closedby === "undefined" ? undefined : closedby}
+          >
+            <ui-dialog-trigger>
+              <button
+                type="button"
+                class={cn(
+                  "text-left p-2 bg-white rounded not-disabled:cursor-pointer hover:not-disabled:bg-gray-100 border border-gray-300"
+                )}
+              >
+                Open Dialog (ModalMode: {modalMode ? "true" : "false"},
+                closedby: {closedby})
+              </button>
+            </ui-dialog-trigger>
+            <ui-dialog-content>
+              <dialog class={cn("rounded border max-w-120 w-full")}>
+                <div class={cn("relatieve p-4 grid gap-4")}>
+                  <ui-dialog-close>
+                    <button
+                      type="button"
+                      class={cn("absolute text-sm top-2 right-2")}
+                      autofocus
+                    >
+                      close
+                    </button>
+                  </ui-dialog-close>
+                  <div class="grid gap-2">
+                    <ui-dialog-title>
+                      <h2 class={cn("text-lg font-bold")}>Dialog Title</h2>
+                    </ui-dialog-title>
+                    <ui-dialog-description>
+                      <p class="text-sm">Dialog description</p>
+                    </ui-dialog-description>
+                  </div>
+                  <p>Dialog content</p>
                 </div>
-                <p>Dialog content</p>
-              </div>
-            </dialog>
-          </ui-dialog-content>
-        </ui-dialog>
+              </dialog>
+            </ui-dialog-content>
+          </ui-dialog>
+        </div>
       </div>
 
       <div class="grid gap-2">

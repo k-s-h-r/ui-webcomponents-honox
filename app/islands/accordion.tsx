@@ -47,32 +47,36 @@ export default function AccordionComponents() {
 
       <div class="grid gap-2">
         <h3>Example</h3>
-        <ui-accordion
-          mode={multipleMode ? "multiple" : "single"}
-          collapsible={collapsibleMode ? "" : undefined}
-          class={cn("grid gap-1", "border border-gray-300 rounded p-2")}
-        >
-          {accordion.map((item, index) => (
-            <ui-accordion-item key={item}>
-              <ui-accordion-trigger>
-                <button
-                  type="button"
-                  class={cn(
-                    "w-full text-left bg-gray-100 p-2 rounded not-disabled:cursor-pointer border border-gray-300",
-                    "disabled:opacity-50 hover:not-disabled:bg-gray-200"
-                  )}
-                >
-                  {item} {index + 1}
-                </button>
-              </ui-accordion-trigger>
-              <ui-accordion-content>
-                <div class="p-2">
-                  Content for {item} {index + 1}
-                </div>
-              </ui-accordion-content>
-            </ui-accordion-item>
-          ))}
-        </ui-accordion>
+
+        <div class="p-2 bg-gray-200 rounded-lg">
+          <ui-accordion
+            mode={multipleMode ? "multiple" : "single"}
+            collapsible={collapsibleMode ? "" : undefined}
+            class={cn("grid gap-1")}
+          >
+            {accordion.map((item, index) => (
+              <ui-accordion-item key={item}>
+                <ui-accordion-trigger>
+                  <button
+                    type="button"
+                    class={cn(
+                      "w-full text-left bg-white p-2 rounded not-disabled:cursor-pointer border border-gray-300",
+                      "disabled:opacity-50 hover:not-disabled:bg-gray-100"
+                    )}
+                  >
+                    {item} {index + 1}
+                  </button>
+                </ui-accordion-trigger>
+                <ui-accordion-content>
+                  <div class="p-2">
+                    {item}
+                    {index + 1} content
+                  </div>
+                </ui-accordion-content>
+              </ui-accordion-item>
+            ))}
+          </ui-accordion>
+        </div>
       </div>
 
       <div class="grid gap-2">
