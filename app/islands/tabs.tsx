@@ -4,7 +4,8 @@ import Button from "../_components/ui/button";
 import { cn } from "../lib/utils";
 
 export default function DialogComponents() {
-  const [loopMode, setLoopMode] = useState(true);
+  const loopList = ["true", "false"];
+  const [loopMode, setLoopMode] = useState(loopList[0]);
   const tabsList = [
     {
       value: "Tab1"
@@ -25,14 +26,39 @@ export default function DialogComponents() {
     }
   ];
 
+  const settingsTableClass = cn(
+    "border-l border-gray-300 grid grid-cols-subgrid col-span-full",
+    "[&>div]:py-2 [&>div]:px-4 [&>div]:border-b [&>div]:border-r [&>div]:border-gray-300"
+  );
+
   return (
     <div class="grid gap-4">
       <div class="grid gap-2">
         <h3>Settings</h3>
-        <div>
-          <Button onClick={() => setLoopMode((loopMode) => !loopMode)}>
-            Change: LoopMode: {loopMode ? "true" : "false"}
-          </Button>
+        <div class="border-t border-gray-300 grid grid-cols-[max-content_1fr]">
+          <div
+            role="radiogroup"
+            aria-labelledby="dialog-group-1"
+            class={cn(settingsTableClass)}
+          >
+            <div id="dialog-group-1" class="bg-gray-100">
+              Attribute: loop
+            </div>
+            <div class="flex gap-4">
+              {loopList.map((option) => (
+                <label key={option} class="flex gap-1 items-center">
+                  <input
+                    type="radio"
+                    name="loop"
+                    value={option}
+                    checked={loopMode === option}
+                    onChange={() => setLoopMode(option)}
+                  />
+                  <span>{option}</span>
+                </label>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -44,7 +70,7 @@ export default function DialogComponents() {
             {/* biome-ignore lint/a11y/noInteractiveElementToNoninteractiveRole: <explanation> */}
             <ui-tabs-list
               role="tablist"
-              loop={loopMode ? "" : undefined}
+              loop={loopMode === "true" ? "" : undefined}
               class={cn("flex gap-0.5")}
             >
               {tabsList.map((item, index) => (
@@ -101,7 +127,7 @@ export default function DialogComponents() {
                 <pre>
                   <code class="rounded-xl bg-gray-800 text-white block p-4 text-sm">
                     {`<ui-tabs>
-  <ui-tabs-list${loopMode ? " loop" : ""}>
+  <ui-tabs-list${loopMode === "true" ? " loop" : ""}>
     <ui-tabs-trigger value="tab1"><button>Tab1</button></ui-tabs-trigger>
     <ui-tabs-trigger value="tab2"><button>Tab2</button></ui-tabs-trigger>
   <ui-tabs-list>

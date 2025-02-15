@@ -5,31 +5,66 @@ import { cn } from "../lib/utils";
 
 export default function DialogComponents() {
   const closedbyList = ["any", "closerequest", "none", "undefined"];
-  const [modalMode, setModalMode] = useState(true);
-  const [closedby, setClosedby] = useState("any");
+  const modalList = ["true", "false"];
+  const [modalMode, setModalMode] = useState(modalList[0]);
+  const [closedby, setClosedby] = useState(closedbyList[0]);
+
+  const settingsTableClass = cn(
+    "border-l border-gray-300 grid grid-cols-subgrid col-span-full",
+    "[&>div]:py-2 [&>div]:px-4 [&>div]:border-b [&>div]:border-r [&>div]:border-gray-300"
+  );
 
   return (
     <div class="grid gap-4">
       <div class="grid gap-2">
         <h3>Settings</h3>
-        <div>
-          <Button onClick={() => setModalMode((modalMode) => !modalMode)}>
-            Change: ModalMode: {modalMode ? "true" : "false"}
-          </Button>
-        </div>
-        <div>
-          <Button
-            onClick={() =>
-              setClosedby(
-                (closedby) =>
-                  closedbyList[
-                    (closedbyList.indexOf(closedby) + 1) % closedbyList.length
-                  ]
-              )
-            }
+        <div class="border-t border-gray-300 grid grid-cols-[max-content_1fr]">
+          <div
+            role="radiogroup"
+            aria-labelledby="dialog-group-1"
+            class={cn(settingsTableClass)}
           >
-            Change: Closedby: {closedby}
-          </Button>
+            <div id="dialog-group-1" class="bg-gray-100">
+              Attribute: modal
+            </div>
+            <div class="flex gap-4">
+              {modalList.map((option) => (
+                <label key={option} class="flex gap-1 items-center">
+                  <input
+                    type="radio"
+                    name="modal"
+                    value={option}
+                    checked={modalMode === option}
+                    onChange={() => setModalMode(option)}
+                  />
+                  <span>{option}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+          <div
+            role="radiogroup"
+            aria-labelledby="dialog-group-2"
+            class={cn(settingsTableClass)}
+          >
+            <div id="dialog-group-2" class="bg-gray-100">
+              Attribute: closedby
+            </div>
+            <div class="flex gap-4">
+              {closedbyList.map((option) => (
+                <label key={option} class="flex gap-1 items-center">
+                  <input
+                    type="radio"
+                    name="closedby"
+                    value={option}
+                    checked={closedby === option}
+                    onChange={() => setClosedby(option)}
+                  />
+                  <span>{option}</span>
+                </label>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -37,7 +72,7 @@ export default function DialogComponents() {
         <h3>Example</h3>
         <div class="p-2 bg-gray-200 rounded-lg">
           <ui-dialog
-            modal={modalMode ? undefined : "false"}
+            modal={modalMode === "true" ? undefined : "false"}
             closedby={closedby === "undefined" ? undefined : closedby}
           >
             <ui-dialog-trigger>
@@ -47,8 +82,7 @@ export default function DialogComponents() {
                   "text-left p-2 bg-white rounded not-disabled:cursor-pointer hover:not-disabled:bg-gray-100 border border-gray-300"
                 )}
               >
-                Open Dialog (ModalMode: {modalMode ? "true" : "false"},
-                closedby: {closedby})
+                Open Dialog (ModalMode: {modalMode}, closedby: {closedby})
               </button>
             </ui-dialog-trigger>
             <ui-dialog-content>
@@ -96,7 +130,7 @@ export default function DialogComponents() {
               <ui-accordion-content cloak>
                 <pre>
                   <code class="rounded-xl bg-gray-800 text-white block p-4 text-sm">
-                    {`<ui-dialog${modalMode ? "" : ' modal="false"'}${closedby !== "undefined" ? ` closedby="${closedby}"` : ""}>
+                    {`<ui-dialog${modalMode === "true" ? "" : ' modal="false"'}${closedby !== "undefined" ? ` closedby="${closedby}"` : ""}>
   <ui-dialog-trigger><button>Open Dialog</button></ui-dialog-trigger>
   <ui-dialog-content>
     <dialog>

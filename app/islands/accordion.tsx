@@ -5,24 +5,70 @@ import { cn } from "../lib/utils";
 
 export default function AccordionComponents() {
   const [accordion, setAccordion] = useState(["Accordion", "Accordion"]);
-  const [multipleMode, setMultipleMode] = useState(true);
-  const [collapsibleMode, setCollapsibleMode] = useState(false);
+
+  const typeList = ["multiple", "single"];
+  const collapsibleList = ["true", "false"];
+  const [typeMode, setTypeMode] = useState(typeList[0]);
+  const [collapsibleMode, setCollapsibleMode] = useState(collapsibleList[0]);
+
+  const settingsTableClass = cn(
+    "border-l border-gray-300 grid grid-cols-subgrid col-span-full",
+    "[&>div]:py-2 [&>div]:px-4 [&>div]:border-b [&>div]:border-r [&>div]:border-gray-300"
+  );
 
   return (
     <div class="grid gap-4">
       <div class="grid gap-2">
         <h3>Settings</h3>
-        <div>
-          <Button onClick={() => setMultipleMode((mode) => !mode)}>
-            Change: AccordionMode: {multipleMode ? "multiple" : "single"}
-          </Button>
+        <div class="border-t border-gray-300 grid grid-cols-[max-content_1fr]">
+          <div
+            role="radiogroup"
+            aria-labelledby="dialog-group-1"
+            class={cn(settingsTableClass)}
+          >
+            <div id="dialog-group-1" class="bg-gray-100">
+              Attribute: type
+            </div>
+            <div class="flex gap-4">
+              {typeList.map((option) => (
+                <label key={option} class="flex gap-1 items-center">
+                  <input
+                    type="radio"
+                    name="type"
+                    value={option}
+                    checked={typeMode === option}
+                    onChange={() => setTypeMode(option)}
+                  />
+                  <span>{option}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+          <div
+            role="radiogroup"
+            aria-labelledby="dialog-group-2"
+            class={cn(settingsTableClass)}
+          >
+            <div id="dialog-group-2" class="bg-gray-100">
+              Attribute: collapsible (single mode only)
+            </div>
+            <div class="flex gap-4">
+              {collapsibleList.map((option) => (
+                <label key={option} class="flex gap-1 items-center">
+                  <input
+                    type="radio"
+                    name="collapsible"
+                    value={option}
+                    checked={collapsibleMode === option}
+                    onChange={() => setCollapsibleMode(option)}
+                  />
+                  <span>{option}</span>
+                </label>
+              ))}
+            </div>
+          </div>
         </div>
-        <div>
-          <Button onClick={() => setCollapsibleMode((mode) => !mode)}>
-            Change: Collapsible(only single mode):{" "}
-            {collapsibleMode ? "true" : "false"}
-          </Button>
-        </div>
+
         <div class="flex gap-2">
           <div>
             <Button
@@ -50,8 +96,8 @@ export default function AccordionComponents() {
 
         <div class="p-2 bg-gray-200 rounded-lg">
           <ui-accordion
-            mode={multipleMode ? "multiple" : "single"}
-            collapsible={collapsibleMode ? "" : undefined}
+            mode={typeMode}
+            collapsible={collapsibleMode === "true" ? "" : undefined}
             class={cn("grid gap-1")}
           >
             {accordion.map((item, index) => (
@@ -96,7 +142,7 @@ export default function AccordionComponents() {
               <ui-accordion-content cloak>
                 <pre>
                   <code class="rounded-xl bg-gray-800 text-white block p-4 text-sm">
-                    {`<ui-accordion mode="${multipleMode ? "multiple" : "single"}"${collapsibleMode ? " collapsible" : ""}>
+                    {`<ui-accordion mode="${typeMode}"${collapsibleMode === "true" ? " collapsible" : ""}>
   <ui-accordion-item>
     <ui-accordion-trigger>
       <button>Open Accordion item</button>
