@@ -1,6 +1,6 @@
 import { subscribeWithSelector } from "zustand/middleware";
 import { createStore } from "zustand/vanilla";
-import { setAttrsElement } from "../utils";
+import { removeAttrCloak, setAttrsElement } from "../utils";
 
 export type AccordionMode = "single" | "multiple";
 type AccordionValue = string | string[] | null;
@@ -22,6 +22,7 @@ interface AccordionItemStoreState {
 }
 
 export class UiAccordion extends HTMLElement {
+  private isReady = false;
   unsubscribe: (() => void) | undefined = undefined;
   useRootStore = createStore(
     subscribeWithSelector<AccordionStoreState>((set) => ({
@@ -80,8 +81,8 @@ export class UiAccordion extends HTMLElement {
       }
     );
 
-    // attributeChangedCallbackのために接続時に属性の追加
-    this.setAttribute("data-ready", "");
+    removeAttrCloak(this);
+    this.isReady = true;
   }
 
   disconnectedCallback(): void {
@@ -94,9 +95,8 @@ export class UiAccordion extends HTMLElement {
     oldValue: string | null,
     newValue: string | null
   ) {
-    // connectedCallback前にも実行されるためdata-ready属性が存在するか確認
-    const isReady = this.hasAttribute("data-ready");
-    if (!isReady) return;
+    // connectedCallback前にも実行されるためisReadyを確認
+    if (!this.isReady) return;
 
     // attribute [disabled] の変更を store に反映
     if (property === "disabled" && oldValue !== newValue) {
@@ -163,6 +163,7 @@ export class UiAccordion extends HTMLElement {
 }
 
 export class UiAccordionItem extends HTMLElement {
+  private isReady = false;
   private $root: UiAccordion | null = null;
   useItemStore = createStore(
     subscribeWithSelector<AccordionItemStoreState>((set) => ({
@@ -254,8 +255,8 @@ export class UiAccordionItem extends HTMLElement {
     // UiAccordionItem を root store に反映
     this.$root.useRootStore.getState().addItems([this]);
 
-    // attributeChangedCallbackのために接続時に属性の追加
-    this.setAttribute("data-ready", "");
+    removeAttrCloak(this);
+    this.isReady = true;
   }
 
   disconnectedCallback(): void {
@@ -269,8 +270,7 @@ export class UiAccordionItem extends HTMLElement {
     oldValue: string,
     newValue: string
   ) {
-    const isReady = this.hasAttribute("data-ready");
-    if (!isReady) return;
+    if (!this.isReady) return;
 
     if (property === "disabled" && oldValue !== newValue) {
       const isDisabled = newValue !== null;
@@ -316,6 +316,7 @@ export class UiAccordionItem extends HTMLElement {
 }
 
 export class UiAccordionTrigger extends HTMLElement {
+  private isReady = false;
   private $parentItem: UiAccordionItem | null = null;
   private $button: HTMLButtonElement | null = null;
   private unsubscribe: (() => void) | undefined = undefined;
@@ -344,6 +345,9 @@ export class UiAccordionTrigger extends HTMLElement {
       this.updateAttrs(state.isOpen, state.disabled, triggerId, contentId);
     });
     this.$button?.addEventListener("click", this.handleClick);
+
+    removeAttrCloak(this);
+    this.isReady = true;
   }
 
   disconnectedCallback(): void {
@@ -378,6 +382,7 @@ export class UiAccordionTrigger extends HTMLElement {
 }
 
 export class UiAccordionHeader extends HTMLElement {
+  private isReady = false;
   private $parentItem: UiAccordionItem | null = null;
   private unsubscribe: (() => void) | undefined = undefined;
 
@@ -405,6 +410,9 @@ export class UiAccordionHeader extends HTMLElement {
     this.unsubscribe = this.$parentItem.useItemStore.subscribe((state) => {
       this.updateAttrs(state.isOpen, state.disabled);
     });
+
+    removeAttrCloak(this);
+    this.isReady = true;
   }
   disconnectedCallback(): void {
     if (this.unsubscribe) this.unsubscribe();
@@ -421,6 +429,7 @@ export class UiAccordionHeader extends HTMLElement {
 }
 
 export class UiAccordionContent extends HTMLElement {
+  private isReady = false;
   private $parentItem: UiAccordionItem | null = null;
   private unsubscribe: (() => void) | undefined = undefined;
 
@@ -535,6 +544,9 @@ export class UiAccordionContent extends HTMLElement {
         }
       }
     });
+
+    removeAttrCloak(this);
+    this.isReady = true;
   }
   disconnectedCallback(): void {
     if (this.unsubscribe) this.unsubscribe();

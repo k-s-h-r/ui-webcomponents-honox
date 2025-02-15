@@ -25,3 +25,7 @@ export const setAttrsElement = (
     }
   }
 };
+
+export const removeAttrCloak = (element: HTMLElement | null): void => {
+  element?.removeAttribute("cloak");
+};

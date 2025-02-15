@@ -1,6 +1,6 @@
 import { subscribeWithSelector } from "zustand/middleware";
 import { createStore } from "zustand/vanilla";
-import { setAttrsElement } from "../utils";
+import { removeAttrCloak, setAttrsElement } from "../utils";
 
 const activateModes = ["manual", "automatic"] as const;
 export type ActivationMode = (typeof activateModes)[number];
@@ -16,6 +16,7 @@ interface TabsStoreState {
 }
 
 export class UiTabs extends HTMLElement {
+  private isReady = false;
   unsubscribe: (() => void) | undefined = undefined;
   useRootStore = createStore(
     subscribeWithSelector<TabsStoreState>((set) => ({
@@ -77,14 +78,15 @@ export class UiTabs extends HTMLElement {
       }
     );
 
-    // attributeChangedCallbackのために接続時に属性の追加
-    this.setAttribute("data-ready", "");
+    removeAttrCloak(this);
+    this.isReady = true;
   }
 
   disconnectedCallback(): void {}
 }
 
 export class UiTabsList extends HTMLElement {
+  private isReady = false;
   private $root: UiTabs | null = null;
   loop = false;
 
@@ -102,6 +104,9 @@ export class UiTabsList extends HTMLElement {
     this.loop = this.hasAttribute("loop");
     this.setAttribute("role", "tablist");
     this.addEventListener("keydown", this.handleButtonKeydown);
+
+    removeAttrCloak(this);
+    this.isReady = true;
   }
 
   disconnectedCallback(): void {
@@ -184,6 +189,7 @@ export class UiTabsList extends HTMLElement {
 }
 
 export class UiTabsTrigger extends HTMLElement {
+  private isReady = false;
   // tabs-trigger, tabs-trigger buttonの管理
   // aria属性, role="tab" を設定
   // value, disabled
@@ -255,6 +261,9 @@ export class UiTabsTrigger extends HTMLElement {
     );
 
     this.$button?.addEventListener("click", this.handleClick);
+
+    removeAttrCloak(this);
+    this.isReady = true;
   }
 
   disconnectedCallback(): void {
@@ -289,6 +298,7 @@ export class UiTabsTrigger extends HTMLElement {
 }
 
 export class UiTabsPanel extends HTMLElement {
+  private isReady = false;
   private $root: UiTabs | null = null;
   value = "";
   unsubscribe: (() => void) | undefined = undefined;
@@ -348,6 +358,9 @@ export class UiTabsPanel extends HTMLElement {
         });
       }
     );
+
+    removeAttrCloak(this);
+    this.isReady = true;
   }
   disconnectedCallback(): void {
     if (this.unsubscribe) this.unsubscribe();
