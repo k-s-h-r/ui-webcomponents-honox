@@ -1,5 +1,5 @@
 {
-  "name": "basic",
+  "name": "ui-webcomponents-honox",
   "type": "module",
   "scripts": {
     "dev": "vite",
