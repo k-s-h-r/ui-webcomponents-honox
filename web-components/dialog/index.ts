@@ -1,6 +1,6 @@
 import { subscribeWithSelector } from "zustand/middleware";
 import { createStore } from "zustand/vanilla";
-import { setAttrsElement } from "../utils";
+import { removeAttrCloak, setAttrsElement } from "../utils";
 
 export type DialogClosedby = "any" | "closerequest" | "none";
 export type DialogClosedbyDefault = "auto";
@@ -24,6 +24,7 @@ interface DialogStoreState {
 }
 
 export class UiDialog extends HTMLElement {
+  private isReady = false;
   private $dialog: HTMLDialogElement | null = null;
 
   unsubscribe: (() => void) | undefined = undefined;
@@ -90,6 +91,9 @@ export class UiDialog extends HTMLElement {
         );
       }
     );
+
+    removeAttrCloak(this);
+    this.isReady = true;
   }
 
   disconnectedCallback(): void {}
@@ -147,6 +151,7 @@ export class UiDialog extends HTMLElement {
 }
 
 export class UiDialogTrigger extends HTMLElement {
+  private isReady = false;
   private $root: UiDialog | null = null;
   private $button: HTMLButtonElement | null = null;
 
@@ -182,6 +187,9 @@ export class UiDialogTrigger extends HTMLElement {
         });
       }
     );
+
+    removeAttrCloak(this);
+    this.isReady = true;
   }
 
   disconnectedCallback(): void {
@@ -201,6 +209,7 @@ export class UiDialogTrigger extends HTMLElement {
 }
 
 export class UiDialogOutsideTrigger extends HTMLElement {
+  private isReady = false;
   private $root: UiDialog | null = null;
   private $button: HTMLButtonElement | null = null;
 
@@ -241,6 +250,9 @@ export class UiDialogOutsideTrigger extends HTMLElement {
         });
       }
     );
+
+    removeAttrCloak(this);
+    this.isReady = true;
   }
 
   disconnectedCallback(): void {
@@ -260,6 +272,7 @@ export class UiDialogOutsideTrigger extends HTMLElement {
 }
 
 export class UiDialogClose extends HTMLElement {
+  private isReady = false;
   private $root: UiDialog | null = null;
   private $button: HTMLButtonElement | null = null;
 
@@ -277,6 +290,9 @@ export class UiDialogClose extends HTMLElement {
     });
 
     this.$button?.addEventListener("click", this.handleClick);
+
+    removeAttrCloak(this);
+    this.isReady = true;
   }
 
   disconnectedCallback(): void {
@@ -289,6 +305,7 @@ export class UiDialogClose extends HTMLElement {
 }
 
 export class UiDialogContent extends HTMLElement {
+  private isReady = false;
   private $root: UiDialog | null = null;
   private $dialog: HTMLDialogElement | null = null;
   private unsubscribe: (() => void) | undefined = undefined;
@@ -354,6 +371,9 @@ export class UiDialogContent extends HTMLElement {
         });
       }
     );
+
+    removeAttrCloak(this);
+    this.isReady = true;
   }
   disconnectedCallback(): void {
     if (this.unsubscribe) this.unsubscribe();
@@ -406,6 +426,7 @@ export class UiDialogContent extends HTMLElement {
 }
 
 export class UiDialogTitle extends HTMLElement {
+  private isReady = false;
   private $root: UiDialog | null = null;
   connectedCallback(): void {
     this.$root = this.closest("ui-dialog");
@@ -417,10 +438,14 @@ export class UiDialogTitle extends HTMLElement {
     setAttrsElement(this, {
       id: titleId
     });
+
+    removeAttrCloak(this);
+    this.isReady = true;
   }
   disconnectedCallback(): void {}
 }
 export class UiDialogDescription extends HTMLElement {
+  private isReady = false;
   private $root: UiDialog | null = null;
   connectedCallback(): void {
     this.$root = this.closest("ui-dialog");
@@ -435,6 +460,9 @@ export class UiDialogDescription extends HTMLElement {
     setAttrsElement(this, {
       id: descriptionId
     });
+
+    removeAttrCloak(this);
+    this.isReady = true;
   }
   disconnectedCallback(): void {}
 }

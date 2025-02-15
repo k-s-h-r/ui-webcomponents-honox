@@ -5,13 +5,13 @@ export const setAttrsElements = (
   for (const element of elements) {
     for (const [key, value] of Object.entries(attributes)) {
       if (value === undefined) {
-        element?.removeAttribute(key)
+        element?.removeAttribute(key);
       } else {
-        element?.setAttribute(key, value)
+        element?.setAttribute(key, value);
       }
     }
   }
-}
+};
 
 export const setAttrsElement = (
   element: HTMLElement | null,
@@ -19,9 +19,13 @@ export const setAttrsElement = (
 ) => {
   for (const [key, value] of Object.entries(attributes)) {
     if (value === undefined) {
-      element?.removeAttribute(key)
+      element?.removeAttribute(key);
     } else {
-      element?.setAttribute(key, value)
+      element?.setAttribute(key, value);
     }
   }
-}
+};
+
+export const removeAttrCloak = (element: HTMLElement | null): void => {
+  element?.removeAttribute("cloak");
+};

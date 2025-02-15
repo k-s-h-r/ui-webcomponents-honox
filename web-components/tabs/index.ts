@@ -1,65 +1,66 @@
-import { subscribeWithSelector } from "zustand/middleware"
-import { createStore } from "zustand/vanilla"
-import { setAttrsElement } from "../utils"
+import { subscribeWithSelector } from "zustand/middleware";
+import { createStore } from "zustand/vanilla";
+import { removeAttrCloak, setAttrsElement } from "../utils";
 
-const activateModes = ["manual", "automatic"] as const
-export type ActivationMode = (typeof activateModes)[number]
-type TabsValue = string | string[] | null
+const activateModes = ["manual", "automatic"] as const;
+export type ActivationMode = (typeof activateModes)[number];
+type TabsValue = string | string[] | null;
 interface TabsStoreState {
-  value: TabsValue
-  activationMode: ActivationMode
+  value: TabsValue;
+  activationMode: ActivationMode;
   tabs: {
-    value: string
-    tabId: string
-    panelId: string
-  }[]
+    value: string;
+    tabId: string;
+    panelId: string;
+  }[];
 }
 
 export class UiTabs extends HTMLElement {
-  unsubscribe: (() => void) | undefined = undefined
+  private isReady = false;
+  unsubscribe: (() => void) | undefined = undefined;
   useRootStore = createStore(
     subscribeWithSelector<TabsStoreState>((set) => ({
       value: "",
       activationMode: "automatic",
       tabs: []
     }))
-  )
+  );
 
   static get observedAttributes() {
-    return ["value", "activationMode"]
+    return ["value", "activationMode"];
   }
 
   connectedCallback(): void {
     const getDefaultValue = () => {
-      const attrValue = this.getAttribute("value")
+      const attrValue = this.getAttribute("value");
       if (attrValue !== null) {
-        return attrValue
+        return attrValue;
       }
       // デフォルト値がない場合、aria-selected="true" のタブを探す
       const selectedTrigger = this.querySelector(
         'ui-tabs-trinnger button[aria-selected="true"]'
-      )
+      );
       if (selectedTrigger) {
-        const value = (selectedTrigger as HTMLElement).dataset.uiValue
+        const value = (selectedTrigger as HTMLElement).dataset.uiValue;
         if (value) {
-          return value
+          return value;
         }
       }
-      return ""
-    }
+      return "";
+    };
     const getActivationMode = () => {
-      const mode = this.getAttribute("activationMode")
+      const mode = this.getAttribute("activationMode");
       if (activateModes.includes(mode as ActivationMode)) {
-        return this.getAttribute("activationMode") as ActivationMode
+        return this.getAttribute("activationMode") as ActivationMode;
       }
-      return this.useRootStore.getState().activationMode
-    }
+      return this.useRootStore.getState().activationMode;
+    };
 
     // 初期状態を store に反映
     this.useRootStore.setState({
       value: getDefaultValue(),
       activationMode: getActivationMode()
-    })
+    });
 
     this.unsubscribe = this.useRootStore.subscribe(
       (state) => ({
@@ -73,39 +74,43 @@ export class UiTabs extends HTMLElement {
               value: state.value
             }
           })
-        )
+        );
       }
-    )
+    );
 
-    // attributeChangedCallbackのために接続時に属性の追加
-    this.setAttribute("data-ready", "")
+    removeAttrCloak(this);
+    this.isReady = true;
   }
 
   disconnectedCallback(): void {}
 }
 
 export class UiTabsList extends HTMLElement {
-  private $root: UiTabs | null = null
-  loop = false
+  private isReady = false;
+  private $root: UiTabs | null = null;
+  loop = false;
 
   static get observedAttributes() {
-    return ["loop"]
+    return ["loop"];
   }
 
   connectedCallback(): void {
-    this.$root = this.closest("ui-tabs")
+    this.$root = this.closest("ui-tabs");
     if (!this.$root) {
-      console.error("ui-tabs-list must be child of ui-tabs")
-      return
+      console.error("ui-tabs-list must be child of ui-tabs");
+      return;
     }
 
-    this.loop = this.hasAttribute("loop")
-    this.setAttribute("role", "tablist")
-    this.addEventListener("keydown", this.handleButtonKeydown)
+    this.loop = this.hasAttribute("loop");
+    this.setAttribute("role", "tablist");
+    this.addEventListener("keydown", this.handleButtonKeydown);
+
+    removeAttrCloak(this);
+    this.isReady = true;
   }
 
   disconnectedCallback(): void {
-    this.removeEventListener("keydown", this.handleButtonKeydown)
+    this.removeEventListener("keydown", this.handleButtonKeydown);
   }
 
   attributeChangedCallback(
@@ -115,7 +120,7 @@ export class UiTabsList extends HTMLElement {
   ) {
     // loop属性の取得
     if (property === "loop" && newValue !== oldValue) {
-      this.loop = this.hasAttribute("loop")
+      this.loop = this.hasAttribute("loop");
     }
   }
 
@@ -123,22 +128,22 @@ export class UiTabsList extends HTMLElement {
     // disabled以外のトリガーを取得
     const triggerElements = this.querySelectorAll(
       "ui-tabs-trigger:not(:scope ui-tabs *):not([disabled])"
-    )
-    const triggers = Array.from(triggerElements) as UiTabsTrigger[]
+    );
+    const triggers = Array.from(triggerElements) as UiTabsTrigger[];
     const currentIndex = triggers.findIndex(
       (trigger) => trigger.value === value
-    )
-    let nextIndex: number | null = currentIndex + 1
-    let prevIndex: number | null = currentIndex - 1
+    );
+    let nextIndex: number | null = currentIndex + 1;
+    let prevIndex: number | null = currentIndex - 1;
 
     // loop属性を有効にした場合、最後のタブを最初のタブに戻す
     if (this.loop) {
-      nextIndex = nextIndex % triggers.length
-      prevIndex = (prevIndex + triggers.length) % triggers.length
+      nextIndex = nextIndex % triggers.length;
+      prevIndex = (prevIndex + triggers.length) % triggers.length;
     } else {
       // 次、前タブがなければnullになりhandleButtonKeydownの処理でなにもしない
-      if (nextIndex >= triggers.length) nextIndex = null // currentIndex
-      if (prevIndex < 0) prevIndex = null // currentIndex
+      if (nextIndex >= triggers.length) nextIndex = null; // currentIndex
+      if (prevIndex < 0) prevIndex = null; // currentIndex
     }
 
     return {
@@ -146,96 +151,97 @@ export class UiTabsList extends HTMLElement {
       last: triggers[triggers.length - 1],
       next: nextIndex === null ? null : triggers[nextIndex],
       prev: prevIndex === null ? null : triggers[prevIndex]
-    }
-  }
+    };
+  };
 
   private handleButtonKeydown = (event: KeyboardEvent): void => {
-    const target = event.target as HTMLButtonElement
-    if (!this.$root) return
+    const target = event.target as HTMLButtonElement;
+    if (!this.$root) return;
 
-    const { value } = this.$root.useRootStore.getState()
-    const { first, last, next, prev } = this.getTabTriggers(value)
-    let nextTrigger: UiTabsTrigger | null = null
+    const { value } = this.$root.useRootStore.getState();
+    const { first, last, next, prev } = this.getTabTriggers(value);
+    let nextTrigger: UiTabsTrigger | null = null;
 
     switch (event.key) {
       case "ArrowLeft":
       case "ArrowUp":
-        nextTrigger = prev
-        break
+        nextTrigger = prev;
+        break;
       case "ArrowRight":
       case "ArrowDown":
-        nextTrigger = next
-        break
+        nextTrigger = next;
+        break;
       case "Home":
-        nextTrigger = first
-        break
+        nextTrigger = first;
+        break;
       case "End":
-        nextTrigger = last
-        break
+        nextTrigger = last;
+        break;
     }
 
     if (nextTrigger) {
-      event.stopPropagation()
-      event.preventDefault()
-      nextTrigger.querySelector("button")?.focus()
-      this.$root.useRootStore.setState({ value: nextTrigger.value })
+      event.stopPropagation();
+      event.preventDefault();
+      nextTrigger.querySelector("button")?.focus();
+      this.$root.useRootStore.setState({ value: nextTrigger.value });
     }
-  }
+  };
 }
 
 export class UiTabsTrigger extends HTMLElement {
+  private isReady = false;
   // tabs-trigger, tabs-trigger buttonの管理
   // aria属性, role="tab" を設定
   // value, disabled
   // data-state, data-disabeld
-  private $root: UiTabs | null = null
-  private $button: HTMLButtonElement | null = null
-  private unsubscribe: (() => void) | undefined = undefined
-  value = ""
-  disabled = false
+  private $root: UiTabs | null = null;
+  private $button: HTMLButtonElement | null = null;
+  private unsubscribe: (() => void) | undefined = undefined;
+  value = "";
+  disabled = false;
 
   connectedCallback(): void {
-    this.$root = this.closest("ui-tabs")
+    this.$root = this.closest("ui-tabs");
     if (!this.$root) {
-      console.error("ui-tabs-list must be child of ui-tabs")
-      return
+      console.error("ui-tabs-list must be child of ui-tabs");
+      return;
     }
 
     // buttonとcontentのid管理を考える必要がある
     // triggerをベースにbuttonとcontentを調べるか
     // rootでtabを管理して初期値は初期生成を利用、button, contentが更新されたらtabを更新してsubscribeでbutton, contentを更新する
 
-    this.$button = this.querySelector("button:not(:scope ui-tabs *)")
-    this.value = this.getAttribute("value") || ""
-    this.disabled = this.hasAttribute("disabled")
+    this.$button = this.querySelector("button:not(:scope ui-tabs *)");
+    this.value = this.getAttribute("value") || "";
+    this.disabled = this.hasAttribute("disabled");
     const tabId =
-      this.$button?.id || `tabs-trigger-${Math.random().toString(36).slice(2)}`
-    const isSelected = this.$root.useRootStore.getState().value === this.value
+      this.$button?.id || `tabs-trigger-${Math.random().toString(36).slice(2)}`;
+    const isSelected = this.$root.useRootStore.getState().value === this.value;
 
     // tabsの更新（UiTabsTriggerとUiTabsPanelでどちらが先に動作するかわからないため連携して設定）
-    const { tabs } = this.$root.useRootStore.getState()
-    const tab = tabs.find((tab) => tab.value === this.value)
+    const { tabs } = this.$root.useRootStore.getState();
+    const tab = tabs.find((tab) => tab.value === this.value);
     if (!tab) {
       // stateがなければstateの新規作成(panelIdはUiTabsPanelで設定)
-      const newTabs = [...tabs, { value: this.value, tabId, panelId: "" }]
+      const newTabs = [...tabs, { value: this.value, tabId, panelId: "" }];
       this.$root.useRootStore.setState({
         tabs: newTabs
-      })
+      });
     } else {
       // stateがあればtabIdを設定してstateの更新
       const newTabs = tabs.map((tab) => {
         if (tab.value === this.value) {
-          tab.tabId = tabId
+          tab.tabId = tabId;
         }
-        return tab
-      })
+        return tab;
+      });
       this.$root.useRootStore.setState({
         tabs: newTabs
-      })
+      });
     }
 
     // 初期設定時はtabIdは空(設定はsubscribe処理内で行われる)
-    this.updateAttrs(isSelected, this.disabled, tabId, "")
+    this.updateAttrs(isSelected, this.disabled, tabId, "");
 
     this.unsubscribe = this.$root.useRootStore.subscribe(
       (state) => ({
@@ -243,23 +249,26 @@ export class UiTabsTrigger extends HTMLElement {
         tabs: state.tabs
       }),
       (state) => {
-        const tab = state.tabs.find((tab) => tab.value === this.value)
-        if (!tab) return
+        const tab = state.tabs.find((tab) => tab.value === this.value);
+        if (!tab) return;
         this.updateAttrs(
           state.value === this.value,
           this.disabled,
           tab.tabId,
           tab.panelId
-        )
+        );
       }
-    )
+    );
 
-    this.$button?.addEventListener("click", this.handleClick)
+    this.$button?.addEventListener("click", this.handleClick);
+
+    removeAttrCloak(this);
+    this.isReady = true;
   }
 
   disconnectedCallback(): void {
-    if (this.unsubscribe) this.unsubscribe()
-    this.$button?.removeEventListener("click", this.handleClick)
+    if (this.unsubscribe) this.unsubscribe();
+    this.$button?.removeEventListener("click", this.handleClick);
   }
 
   private updateAttrs(
@@ -271,7 +280,7 @@ export class UiTabsTrigger extends HTMLElement {
     setAttrsElement(this, {
       "data-state": isSelected ? "active" : "inactive",
       "data-disabled": isDisabled ? "" : undefined
-    })
+    });
     setAttrsElement(this.$button, {
       "data-state": isSelected ? "active" : "inactive",
       "data-disabled": isDisabled ? "" : undefined,
@@ -280,29 +289,30 @@ export class UiTabsTrigger extends HTMLElement {
       "aria-controls": panelId,
       id: triggerId,
       tabindex: isSelected ? "0" : " -1"
-    })
+    });
   }
 
   private handleClick = (): void => {
-    this.$root?.useRootStore.setState({ value: this.value })
-  }
+    this.$root?.useRootStore.setState({ value: this.value });
+  };
 }
 
 export class UiTabsPanel extends HTMLElement {
-  private $root: UiTabs | null = null
-  value = ""
-  unsubscribe: (() => void) | undefined = undefined
+  private isReady = false;
+  private $root: UiTabs | null = null;
+  value = "";
+  unsubscribe: (() => void) | undefined = undefined;
 
   connectedCallback(): void {
-    this.$root = this.closest("ui-tabs")
+    this.$root = this.closest("ui-tabs");
     if (!this.$root) {
-      console.error("ui-tabs-panel must be child of ui-tabs")
-      return
+      console.error("ui-tabs-panel must be child of ui-tabs");
+      return;
     }
 
-    this.value = this.getAttribute("value") || ""
+    this.value = this.getAttribute("value") || "";
     const panelId =
-      this.id || `tabs-panel-${Math.random().toString(36).slice(2)}`
+      this.id || `tabs-panel-${Math.random().toString(36).slice(2)}`;
 
     setAttrsElement(this, {
       role: "tabpanel",
@@ -310,28 +320,28 @@ export class UiTabsPanel extends HTMLElement {
       "data-state": "inactive",
       id: panelId,
       "aria-labelledby": "" // aria-labelledby(triggerId)の設定はsubscribe処理内で行われる
-    })
+    });
 
     // tabsの更新（UiTabsTriggerとUiTabsPanelでどちらが先に動作するかわからないため連携して設定）
-    const { tabs } = this.$root.useRootStore.getState()
-    const tab = tabs.find((tab) => tab.value === this.value)
+    const { tabs } = this.$root.useRootStore.getState();
+    const tab = tabs.find((tab) => tab.value === this.value);
     if (!tab) {
       // stateがなければstateの新規作成（tabIdはUiTabsTriggerで設定）
-      const newTabs = [...tabs, { value: this.value, tabId: "", panelId }]
+      const newTabs = [...tabs, { value: this.value, tabId: "", panelId }];
       this.$root.useRootStore.setState({
         tabs: newTabs
-      })
+      });
     } else {
       // stateがあればpanelIdを設定してstateの更新
       const newTabs = tabs.map((tab) => {
         if (tab.value === this.value) {
-          tab.panelId = panelId
+          tab.panelId = panelId;
         }
-        return tab
-      })
+        return tab;
+      });
       this.$root.useRootStore.setState({
         tabs: newTabs
-      })
+      });
     }
 
     this.unsubscribe = this.$root.useRootStore.subscribe(
@@ -340,30 +350,33 @@ export class UiTabsPanel extends HTMLElement {
         tabs: state.tabs
       }),
       (state) => {
-        const tab = state.tabs.find((tab) => tab.value === this.value)
-        if (!tab) return
+        const tab = state.tabs.find((tab) => tab.value === this.value);
+        if (!tab) return;
         setAttrsElement(this, {
           "data-state": state.value === this.value ? "active" : "inactive",
           "aria-labelledby": tab.tabId
-        })
+        });
       }
-    )
+    );
+
+    removeAttrCloak(this);
+    this.isReady = true;
   }
   disconnectedCallback(): void {
-    if (this.unsubscribe) this.unsubscribe()
+    if (this.unsubscribe) this.unsubscribe();
   }
 }
 
-customElements.define("ui-tabs", UiTabs)
-customElements.define("ui-tabs-list", UiTabsList)
-customElements.define("ui-tabs-trigger", UiTabsTrigger)
-customElements.define("ui-tabs-panel", UiTabsPanel)
+customElements.define("ui-tabs", UiTabs);
+customElements.define("ui-tabs-list", UiTabsList);
+customElements.define("ui-tabs-trigger", UiTabsTrigger);
+customElements.define("ui-tabs-panel", UiTabsPanel);
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ui-tabs": UiTabs
-    "ui-tabs-list": UiTabsList
-    "ui-tabs-trigger": UiTabsTrigger
-    "ui-tabs-panel": UiTabsPanel
+    "ui-tabs": UiTabs;
+    "ui-tabs-list": UiTabsList;
+    "ui-tabs-trigger": UiTabsTrigger;
+    "ui-tabs-panel": UiTabsPanel;
   }
 }
