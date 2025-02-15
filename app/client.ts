@@ -1,4 +1,4 @@
-import { createClient } from "honox/client"
-import "../web-components"
+import { createClient } from "honox/client";
+import "../web-components";
 
-createClient()
+createClient();

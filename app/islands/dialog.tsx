@@ -1,12 +1,12 @@
-import { css } from "hono/css"
-import { useState } from "hono/jsx"
-import Button from "../_components/ui/button"
-import { cn } from "../lib/utils"
+import { css } from "hono/css";
+import { useState } from "hono/jsx";
+import Button from "../_components/ui/button";
+import { cn } from "../lib/utils";
 
 export default function DialogComponents() {
-  const closedbyList = ["any", "closerequest", "none", "undefined"]
-  const [modalMode, setModalMode] = useState(true)
-  const [closedby, setClosedby] = useState("any")
+  const closedbyList = ["any", "closerequest", "none", "undefined"];
+  const [modalMode, setModalMode] = useState(true);
+  const [closedby, setClosedby] = useState("any");
 
   return (
     <div class="grid gap-4">
@@ -115,5 +115,5 @@ export default function DialogComponents() {
         </div>
       </div>
     </div>
-  )
+  );
 }
