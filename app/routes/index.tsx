@@ -1,7 +1,7 @@
-import { createRoute } from "honox/factory"
-import Accordion from "../islands/accordion"
-import Dialog from "../islands/dialog"
-import Tabs from "../islands/tabs"
+import { createRoute } from "honox/factory";
+import Accordion from "../islands/accordion";
+import Dialog from "../islands/dialog";
+import Tabs from "../islands/tabs";
 
 export default createRoute((c) => {
   // const name = c.req.query('name') ?? 'Hono'
@@ -22,5 +22,5 @@ export default createRoute((c) => {
       </div>
     </div>,
     { title: "Hello, hono & Web Components!" }
-  )
-})
+  );
+});
