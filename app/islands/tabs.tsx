@@ -126,7 +126,7 @@ export default function DialogComponents() {
               <ui-accordion-content cloak>
                 <pre>
                   <code class="rounded-xl bg-gray-800 text-white block p-4 text-sm">
-                    {`<ui-tabs>
+                    {`<ui-tabs value="tab1">
   <ui-tabs-list${loopMode === "true" ? " loop" : ""}>
     <ui-tabs-trigger value="tab1"><button>Tab1</button></ui-tabs-trigger>
     <ui-tabs-trigger value="tab2"><button>Tab2</button></ui-tabs-trigger>
