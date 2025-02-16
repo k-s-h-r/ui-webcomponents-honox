@@ -83,7 +83,8 @@ export default function DialogComponents() {
                     type="button"
                     class={cn(
                       "bg-white not-disabled:cursor-pointer hover:not-disabled:bg-gray-200 border border-gray-300 p-2 rounded-t",
-                      "disabled:opacity-50"
+                      "disabled:opacity-50",
+                      "data-[state=active]:bg-gradient-to-t from-white from-90% to-gray-700 to-90%"
                     )}
                   >
                     {item.value}
