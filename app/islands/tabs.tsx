@@ -130,7 +130,7 @@ export default function DialogComponents() {
   <ui-tabs-list${loopMode === "true" ? " loop" : ""}>
     <ui-tabs-trigger value="tab1"><button>Tab1</button></ui-tabs-trigger>
     <ui-tabs-trigger value="tab2"><button>Tab2</button></ui-tabs-trigger>
-  <ui-tabs-list>
+  </ui-tabs-list>
   <ui-tabs-panel value="tab1">
     Tab1 content
   </ui-tabs-panel>
