@@ -3,9 +3,9 @@ import { createStore } from "zustand/vanilla";
 import { removeAttrCloak, setAttrsElement } from "../utils";
 
 const activateModes = ["manual", "automatic"] as const;
-export type ActivationMode = (typeof activateModes)[number];
+type ActivationMode = (typeof activateModes)[number];
 type TabsValue = string | string[] | null;
-interface TabsStoreState {
+type TabsStoreState = {
   value: TabsValue;
   activationMode: ActivationMode;
   tabs: {
@@ -13,7 +13,7 @@ interface TabsStoreState {
     tabId: string;
     panelId: string;
   }[];
-}
+};
 
 export class UiTabs extends HTMLElement {
   private isReady = false;
@@ -49,9 +49,9 @@ export class UiTabs extends HTMLElement {
       return "";
     };
     const getActivationMode = () => {
-      const mode = this.getAttribute("activationMode");
-      if (activateModes.includes(mode as ActivationMode)) {
-        return this.getAttribute("activationMode") as ActivationMode;
+      const mode = this.getAttribute("activationMode") as ActivationMode | null;
+      if (mode && activateModes.includes(mode)) {
+        return mode;
       }
       return this.useRootStore.getState().activationMode;
     };
