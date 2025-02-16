@@ -44,7 +44,7 @@ export default function DialogComponents() {
             <div id="dialog-group-1" class="bg-gray-100">
               Attribute: loop
             </div>
-            <div class="flex gap-4">
+            <div class="flex gap-0 md:gap-4 flex-col md:flex-row">
               {loopList.map((option) => (
                 <label key={option} class="flex gap-1 items-center">
                   <input
@@ -124,9 +124,9 @@ export default function DialogComponents() {
                   </button>
                 </ui-accordion-trigger>
               </h3>
-              <ui-accordion-content cloak>
-                <pre>
-                  <code class="rounded-xl bg-gray-800 text-white block p-4 text-sm">
+              <ui-accordion-content cloak class="@container">
+                <pre class="max-w-[100cqw] rounded-xl bg-gray-800 text-white block p-4 text-sm overflow-x-auto">
+                  <code>
                     {`<ui-tabs value="tab1">
   <ui-tabs-list${loopMode === "true" ? " loop" : ""}>
     <ui-tabs-trigger value="tab1"><button>Tab1</button></ui-tabs-trigger>

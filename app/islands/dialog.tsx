@@ -27,7 +27,7 @@ export default function DialogComponents() {
             <div id="dialog-group-1" class="bg-gray-100">
               Attribute: modal
             </div>
-            <div class="flex gap-4">
+            <div class="flex gap-0 md:gap-4 flex-col md:flex-row">
               {modalList.map((option) => (
                 <label key={option} class="flex gap-1 items-center">
                   <input
@@ -50,7 +50,7 @@ export default function DialogComponents() {
             <div id="dialog-group-2" class="bg-gray-100">
               Attribute: closedby
             </div>
-            <div class="flex gap-4">
+            <div class="flex gap-0 md:gap-4 flex-col md:flex-row">
               {closedbyList.map((option) => (
                 <label key={option} class="flex gap-1 items-center">
                   <input
@@ -127,9 +127,9 @@ export default function DialogComponents() {
                   </button>
                 </ui-accordion-trigger>
               </h3>
-              <ui-accordion-content cloak>
-                <pre>
-                  <code class="rounded-xl bg-gray-800 text-white block p-4 text-sm">
+              <ui-accordion-content cloak class="@container">
+                <pre class="max-w-[100cqw] rounded-xl bg-gray-800 text-white block p-4 text-sm overflow-x-auto">
+                  <code>
                     {`<ui-dialog${modalMode === "true" ? "" : ' modal="false"'}${closedby !== "undefined" ? ` closedby="${closedby}"` : ""}>
   <ui-dialog-trigger><button>Open Dialog</button></ui-dialog-trigger>
   <ui-dialog-content>

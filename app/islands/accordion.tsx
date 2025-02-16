@@ -29,7 +29,7 @@ export default function AccordionComponents() {
             <div id="dialog-group-1" class="bg-gray-100">
               Attribute: type
             </div>
-            <div class="flex gap-4">
+            <div class="flex gap-0 md:gap-4 flex-col md:flex-row">
               {typeList.map((option) => (
                 <label key={option} class="flex gap-1 items-center">
                   <input
@@ -50,9 +50,10 @@ export default function AccordionComponents() {
             class={cn(settingsTableClass)}
           >
             <div id="dialog-group-2" class="bg-gray-100">
-              Attribute: collapsible (single mode only)
+              Attribute: collapsible <br class="md:hidden" />
+              (single mode only)
             </div>
-            <div class="flex gap-4">
+            <div class="flex gap-0 md:gap-4 flex-col md:flex-row">
               {collapsibleList.map((option) => (
                 <label key={option} class="flex gap-1 items-center">
                   <input
@@ -139,9 +140,9 @@ export default function AccordionComponents() {
                   </button>
                 </ui-accordion-trigger>
               </h3>
-              <ui-accordion-content cloak>
-                <pre>
-                  <code class="rounded-xl bg-gray-800 text-white block p-4 text-sm">
+              <ui-accordion-content cloak class="@container">
+                <pre class="max-w-[100cqw] rounded-xl bg-gray-800 text-white block p-4 text-sm overflow-x-auto">
+                  <code>
                     {`<ui-accordion mode="${typeMode}"${collapsibleMode === "true" ? " collapsible" : ""}>
   <ui-accordion-item>
     <ui-accordion-trigger>

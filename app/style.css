@@ -1,8 +1,2 @@
 @import "tailwindcss" source("../app");
 @import "./components.css" layer(base);
-
-@layer base {
-body {
-  padding: 30px 30px;
-}
-}
