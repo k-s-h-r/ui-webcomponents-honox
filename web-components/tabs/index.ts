@@ -277,6 +277,7 @@ export class UiTabsTrigger extends HTMLElement {
     setAttrsElement(this.$button, {
       "data-state": isSelected ? "active" : "inactive",
       "data-disabled": isDisabled ? "" : undefined,
+      "aria-selected": isSelected ? "true" : "false",
       disabled: isDisabled ? "" : undefined,
       role: "tab",
       "aria-controls": panelId,
