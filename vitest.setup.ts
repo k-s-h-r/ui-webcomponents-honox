@@ -28,12 +28,23 @@ beforeEach(() => {
       clearTimeout(id)
     }
   }
+  // Force no-transition for accordion content unless a test mocks it
+  const origGetComputedStyle = window.getComputedStyle.bind(window)
+  window.getComputedStyle = ((el: Element) => {
+    const style = origGetComputedStyle(el as any)
+    if ((el as HTMLElement).tagName === 'UI-ACCORDION-CONTENT') {
+      return { ...style, transitionDuration: '0s' } as any
+    }
+    return style
+  }) as any
 })
 
 // Clean up after each test
 afterEach(() => {
   // Clear all active timers and animation frames
   vi.clearAllTimers()
+  // Ensure we always revert to real timers for the next test
+  vi.useRealTimers()
   
   // Disconnect any active accordion content components to stop animations
   const accordionContents = Array.from(document.querySelectorAll('ui-accordion-content'));
