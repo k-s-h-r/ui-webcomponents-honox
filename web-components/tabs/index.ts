@@ -27,7 +27,7 @@ export class UiTabs extends HTMLElement {
   );
 
   static get observedAttributes() {
-    return ["value", "activationMode"];
+    return ["value", "activation-mode"];
   }
 
   connectedCallback(): void {
@@ -38,7 +38,7 @@ export class UiTabs extends HTMLElement {
       }
       // デフォルト値がない場合、aria-selected="true" のタブを探す
       const selectedTrigger = this.querySelector(
-        'ui-tabs-trinnger button[aria-selected="true"]'
+        'ui-tabs-trigger button[aria-selected="true"]'
       );
       if (selectedTrigger) {
         const value = (selectedTrigger as HTMLElement).dataset.uiValue;
@@ -49,7 +49,9 @@ export class UiTabs extends HTMLElement {
       return "";
     };
     const getActivationMode = () => {
-      const mode = this.getAttribute("activationMode") as ActivationMode | null;
+      const mode = this.getAttribute(
+        "activation-mode"
+      ) as ActivationMode | null;
       if (mode && activateModes.includes(mode)) {
         return mode;
       }
@@ -82,7 +84,28 @@ export class UiTabs extends HTMLElement {
     this.isReady = true;
   }
 
-  disconnectedCallback(): void {}
+  disconnectedCallback(): void {
+    if (this.unsubscribe) this.unsubscribe();
+  }
+
+  attributeChangedCallback(
+    property: string,
+    oldValue: string | null,
+    newValue: string | null
+  ) {
+    // connectedCallback前にも実行されるためisReadyを確認
+    if (!this.isReady) return;
+
+    if (property === "value" && oldValue !== newValue) {
+      this.useRootStore.setState({ value: newValue || "" });
+    }
+    if (property === "activation-mode" && oldValue !== newValue) {
+      const mode = newValue as ActivationMode | null;
+      if (mode && activateModes.includes(mode)) {
+        this.useRootStore.setState({ activationMode: mode });
+      }
+    }
+  }
 }
 
 export class UiTabsList extends HTMLElement {
