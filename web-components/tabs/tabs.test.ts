@@ -1,3 +1,52 @@
+/**
+ * タブコンポーネントのテストスイート
+ * 
+ * このテストでは以下のコンポーネントをテストしています：
+ * 
+ * 1. UiTabs - メインのタブコンテナ
+ *    - 初期状態の設定（value、activation-mode属性）
+ *    - aria-selected属性から自動的な選択タブの検出
+ *    - activation-modeの検証（automatic、manual、無効値のフォールバック）
+ *    - 購読システムによるonValueChangeイベント発火
+ *    - 動的な属性変更の購読処理
+ * 
+ * 2. UiTabsList - タブリストコンテナ
+ *    - WAI-ARIA tablistロールの設定
+ *    - loop属性による循環ナビゲーション制御
+ *    - キーボードナビゲーション（ArrowLeft/Right、Home/End）
+ *    - 購読システムによるフォーカス管理と状態同期
+ *    - disabled状態のタブのスキップ処理
+ *    - ループナビゲーション（最後→最初、最初→最後）
+ * 
+ * 3. UiTabsTrigger - 個別のタブボタン
+ *    - WAI-ARIA tab属性の設定（role、aria-selected、tabindex、aria-controls）
+ *    - 購読システムによる選択状態の属性更新（data-state、aria-selected）
+ *    - disabled状態の処理とdata-disabled属性
+ *    - ユーザーインタラクション（クリック）による値変更
+ *    - タブストアへの自動登録（tabId、panelIdの連携）
+ * 
+ * 4. UiTabsPanel - タブに対応するパネル
+ *    - WAI-ARIA tabpanel属性の設定（role、tabindex、aria-labelledby）
+ *    - 購読システムによるアクティブ状態管理（data-state属性）
+ *    - 対応するトリガーとの連携（aria-labelledby設定）
+ *    - タブストアへの自動登録（panelId設定）
+ * 
+ * 5. Integration Tests - 統合テスト
+ *    - 完全なタブインタラクションフロー（クリック→状態変更）
+ *    - ARIA関係性の確認（aria-controls、aria-labelledby）
+ *    - キーボードナビゲーションとdisabled状態の連携
+ *    - ループナビゲーションとdisabled状態のスキップ
+ *    - onValueChangeイベントの発火確認
+ *    - トリガーとパネルの状態協調（data-state同期）
+ * 
+ * テストの特徴：
+ * - 将来のZustand→カスタムpub/subシステム移行に備えた購読ベースのテスト
+ * - 自然なユーザーインタラクション（ボタンクリック、キーボード操作）を重視
+ * - WAI-ARIAアクセシビリティ標準の厳密な検証
+ * - 非同期状態変更のPromiseベーステスト
+ * - トリガーとパネルの動的な連携テスト
+ */
+
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { UiTabs, UiTabsList, UiTabsPanel, UiTabsTrigger } from "./index";
 
@@ -84,8 +133,7 @@ describe("Tabs Components", () => {
     it("should emit onValueChange event through subscription system", async () => {
       tabs.connectedCallback();
 
-      // Create a second tab to test value change through interaction
-      const tabs2 = document.createElement("ui-tabs") as UiTabs;
+      // Create a trigger to test value change through interaction
       const trigger2 = document.createElement(
         "ui-tabs-trigger"
       ) as UiTabsTrigger;

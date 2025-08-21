@@ -1,3 +1,57 @@
+/**
+ * アコーディオンコンポーネントのテストスイート
+ * 
+ * このテストでは以下のコンポーネントをテストしています：
+ * 
+ * 1. UiAccordion - メインのアコーディオンコンテナ
+ *    - 初期状態の設定（value、type属性）
+ *    - type属性による動作制御（single、multiple、無効値のフォールバック）
+ *    - 購読システムによるonValueChangeイベント発火
+ *    - 動的な属性変更の購読処理
+ *    - collapsible属性による折りたたみ制御
+ * 
+ * 2. UiAccordionItem - 個別のアコーディオン項目
+ *    - value属性による項目識別
+ *    - disabled状態の処理
+ *    - 購読システムによる展開/折りたたみ状態管理（data-state属性）
+ *    - アコーディオンストアへの自動登録
+ * 
+ * 3. UiAccordionHeader - アコーディオンのヘッダー部分
+ *    - WAI-ARIAのheading属性設定
+ *    - 基本的な構造の提供
+ * 
+ * 4. UiAccordionTrigger - 展開/折りたたみを制御するトリガーボタン
+ *    - WAI-ARIA button属性の設定（aria-expanded、aria-controls）
+ *    - 購読システムによる状態更新（aria-expanded、data-state）
+ *    - ユーザーインタラクション（クリック）による展開/折りたたみ
+ *    - disabled状態の制御
+ *    - キーボードアクセシビリティ（Space、Enterキー）
+ * 
+ * 5. UiAccordionContent - アコーディオンのコンテンツ部分
+ *    - WAI-ARIA region属性の設定（aria-labelledby）
+ *    - 購読システムによる表示/非表示制御（data-state属性）
+ *    - CSS transitionアニメーション対応（data-starting-style、data-ending-style）
+ *    - ResizeObserverによる動的サイズ調整
+ *    - アニメーション終了後のクリーンアップ処理
+ * 
+ * 6. Integration Tests - 統合テスト
+ *    - 完全なアコーディオンインタラクションフロー
+ *    - single typeでの排他制御（一つだけ開く）
+ *    - multiple typeでの複数展開
+ *    - collapsible制御（single + collapsible = 全て閉じることが可能）
+ *    - ARIA関係性の確認（aria-controls、aria-labelledby）
+ *    - onValueChangeイベントの発火確認
+ *    - disabled状態でのインタラクション無効化
+ * 
+ * テストの特徴：
+ * - 将来のZustand→カスタムpub/subシステム移行に備えた購読ベースのテスト
+ * - 自然なユーザーインタラクション（ボタンクリック、キーボード操作）を重視
+ * - WAI-ARIAアクセシビリティ標準の厳密な検証
+ * - CSS transitionアニメーションの状態管理テスト
+ * - ResizeObserver APIのモック対応
+ * - 非同期状態変更のPromiseベーステスト
+ */
+
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   UiAccordion,
