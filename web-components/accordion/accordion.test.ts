@@ -52,7 +52,7 @@
  * - 非同期状態変更のPromiseベーステスト
  */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   UiAccordion,
   UiAccordionContent,
@@ -66,9 +66,25 @@ import "./index";
 
 describe("Accordion Components", () => {
   beforeEach(() => {
+    // Use fake timers to control requestAnimationFrame
+    vi.useFakeTimers();
+    
     // Clean up DOM and any existing event listeners
     document.body.innerHTML = "";
     vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    // Restore real timers
+    vi.useRealTimers();
+    
+    // Clean up any remaining accordion content components
+    const accordionContents = Array.from(document.querySelectorAll('ui-accordion-content'));
+    for (const content of accordionContents) {
+      if (typeof (content as HTMLElement & { disconnectedCallback?: () => void }).disconnectedCallback === 'function') {
+        (content as HTMLElement & { disconnectedCallback: () => void }).disconnectedCallback();
+      }
+    }
   });
 
   describe("Custom Element Registration", () => {
@@ -142,7 +158,21 @@ describe("Accordion Components", () => {
       expect(state.value).toEqual(["item1", "item2", "item3"]);
     });
 
-    it("should emit onValueChange event when value changes", async () => {
+    it("should emit onValueChange event through subscription system", async () => {
+      // Create a complete accordion structure for natural interaction
+      const item = document.createElement("ui-accordion-item") as UiAccordionItem;
+      const trigger = document.createElement("ui-accordion-trigger") as UiAccordionTrigger;
+      const button = document.createElement("button");
+      
+      trigger.appendChild(button);
+      item.appendChild(trigger);
+      item.setAttribute("value", "test-value");
+      accordion.appendChild(item);
+      
+      accordion.connectedCallback();
+      item.connectedCallback();
+      trigger.connectedCallback();
+
       return new Promise<void>((resolve) => {
         accordion.addEventListener("onValueChange", (event: Event) => {
           const customEvent = event as CustomEvent;
@@ -150,16 +180,19 @@ describe("Accordion Components", () => {
           resolve();
         });
 
-        accordion.useRootStore.setState({ value: ["test-value"] });
+        // Trigger through natural user interaction instead of direct state manipulation
+        button.click();
       });
     });
 
-    it("should handle dynamic attribute changes", () => {
+    it("should handle dynamic attribute changes through subscription system", () => {
       accordion.connectedCallback();
 
+      // Test disabled attribute setting
       accordion.setAttribute("disabled", "");
       expect(accordion.useRootStore.getState().disabled).toBe(true);
 
+      // Test disabled attribute removal
       accordion.removeAttribute("disabled");
       expect(accordion.useRootStore.getState().disabled).toBe(false);
     });
@@ -228,20 +261,24 @@ describe("Accordion Components", () => {
       expect(item.useItemStore.getState().isOpen).toBe(true);
     });
 
-    it("should toggle state correctly", () => {
+    it("should toggle state correctly through subscription system", () => {
       item.setAttribute("value", "test-item");
       item.connectedCallback();
 
       expect(item.useItemStore.getState().isOpen).toBe(false);
 
+      // First toggle: open
       item.toggle(true);
       expect(item.useItemStore.getState().isOpen).toBe(true);
+      expect(item.getAttribute("data-state")).toBe("open");
 
+      // Second toggle: close
       item.toggle(false);
       expect(item.useItemStore.getState().isOpen).toBe(false);
+      expect(item.getAttribute("data-state")).toBe("closed");
     });
 
-    it("should respect collapsible setting in single mode", () => {
+    it("should respect collapsible setting in single mode through subscription", () => {
       accordion.setAttribute("mode", "single");
       accordion.setAttribute("collapsible", "");
       item.setAttribute("value", "test-item");
@@ -249,12 +286,15 @@ describe("Accordion Components", () => {
       accordion.connectedCallback();
       item.connectedCallback();
 
+      // First toggle: open (collapsible allows opening)
       item.toggle(true);
       expect(item.useItemStore.getState().isOpen).toBe(true);
+      expect(item.getAttribute("data-state")).toBe("open");
 
-      // Should be able to close when collapsible is true
+      // Second toggle: close (collapsible allows closing in single mode)
       item.toggle(false);
       expect(item.useItemStore.getState().isOpen).toBe(false);
+      expect(item.getAttribute("data-state")).toBe("closed");
     });
 
     it("should close other items in single mode when opening", () => {
@@ -347,39 +387,87 @@ describe("Accordion Components", () => {
       expect(button.hasAttribute("id")).toBe(true);
     });
 
-    it("should update ARIA attributes when item state changes", () => {
+    it("should update ARIA attributes through subscription when item state changes", () => {
       expect(button.getAttribute("aria-expanded")).toBe("false");
 
+      // First change: item opens
       item.toggle(true);
+      expect(item.useItemStore.getState().isOpen).toBe(true);
       expect(button.getAttribute("aria-expanded")).toBe("true");
+      expect(button.getAttribute("data-state")).toBe("open");
 
+      // Second change: item closes
       item.toggle(false);
+      expect(item.useItemStore.getState().isOpen).toBe(false);
       expect(button.getAttribute("aria-expanded")).toBe("false");
+      expect(button.getAttribute("data-state")).toBe("closed");
     });
 
-    it("should trigger item toggle on button click", () => {
-      const toggleSpy = vi.spyOn(item, "toggle");
+    it("should trigger item toggle through natural user interaction", async () => {
+      expect(item.useItemStore.getState().isOpen).toBe(false);
 
-      button.click();
-      expect(toggleSpy).toHaveBeenCalled();
+      return new Promise<void>((resolve) => {
+        const unsubscribe = item.useItemStore.subscribe(
+          (state) => ({ isOpen: state.isOpen }),
+          (state) => {
+            if (state.isOpen) {
+              // Button click should trigger subscription and open the item
+              expect(state.isOpen).toBe(true);
+              expect(button.getAttribute("aria-expanded")).toBe("true");
+              expect(button.getAttribute("data-state")).toBe("open");
+              unsubscribe();
+              resolve();
+            }
+          }
+        );
+
+        // Natural user interaction: button click
+        button.click();
+      });
     });
 
-    it("should set data-state attributes", () => {
+    it("should set data-state attributes through subscription system", async () => {
       expect(trigger.getAttribute("data-state")).toBe("closed");
       expect(button.getAttribute("data-state")).toBe("closed");
 
-      item.toggle(true);
-      expect(trigger.getAttribute("data-state")).toBe("open");
-      expect(button.getAttribute("data-state")).toBe("open");
+      return new Promise<void>((resolve) => {
+        const unsubscribe = item.useItemStore.subscribe(
+          (state) => ({ isOpen: state.isOpen }),
+          (state) => {
+            if (state.isOpen) {
+              // Subscription should update data-state attributes
+              expect(trigger.getAttribute("data-state")).toBe("open");
+              expect(button.getAttribute("data-state")).toBe("open");
+              unsubscribe();
+              resolve();
+            }
+          }
+        );
+
+        // Trigger subscription through item state change
+        item.toggle(true);
+      });
     });
 
-    it("should handle disabled state", () => {
-      // Set disabled on accordion root
-      accordion.setAttribute("disabled", "");
-      accordion.connectedCallback();
+    it("should handle disabled state through subscription system", async () => {
+      return new Promise<void>((resolve) => {
+        const unsubscribe = accordion.useRootStore.subscribe(
+          (state) => ({ disabled: state.disabled }),
+          (state) => {
+            if (state.disabled) {
+              // Subscription should update trigger attributes when accordion is disabled
+              expect(button.getAttribute("data-disabled")).toBe("");
+              expect(trigger.getAttribute("data-disabled")).toBe("");
+              unsubscribe();
+              resolve();
+            }
+          }
+        );
 
-      // The subscription should update the attributes automatically
-      expect(button.getAttribute("data-disabled")).toBe("");
+        // Trigger subscription through attribute change
+        accordion.setAttribute("disabled", "");
+        accordion.connectedCallback();
+      });
     });
 
     it("should clean up event listeners on disconnect", () => {
@@ -483,10 +571,24 @@ describe("Accordion Components", () => {
       expect(content.getAttribute("data-state")).toBe("closed");
     });
 
-    it("should remove hidden attribute when open", () => {
-      item.toggle(true);
-      expect(content.hasAttribute("hidden")).toBe(false);
-      expect(content.getAttribute("data-state")).toBe("open");
+    it("should remove hidden attribute when open through subscription", async () => {
+      return new Promise<void>((resolve) => {
+        const unsubscribe = item.useItemStore.subscribe(
+          (state) => ({ isOpen: state.isOpen }),
+          (state) => {
+            if (state.isOpen) {
+              // Subscription should update content attributes when item opens
+              expect(content.hasAttribute("hidden")).toBe(false);
+              expect(content.getAttribute("data-state")).toBe("open");
+              unsubscribe();
+              resolve();
+            }
+          }
+        );
+
+        // Trigger subscription through item toggle
+        item.toggle(true);
+      });
     });
 
     it("should handle CSS custom property for animations", () => {
@@ -600,7 +702,7 @@ describe("Accordion Components", () => {
       }
     });
 
-    it("should handle complete user interaction flow", () => {
+    it("should handle complete user interaction flow through natural clicks", () => {
       const button1 = document.querySelector(
         'ui-accordion-item[value="item1"] button'
       ) as HTMLButtonElement;
@@ -623,11 +725,15 @@ describe("Accordion Components", () => {
         button2.click();
         expect(item1.useItemStore.getState().isOpen).toBe(false);
         expect(item2.useItemStore.getState().isOpen).toBe(true);
+        expect(button1.getAttribute("aria-expanded")).toBe("false");
+        expect(button2.getAttribute("aria-expanded")).toBe("true");
 
-        // Click item1 button - should close item2 and open item1
+        // Click item1 button - should close item2 and open item1  
         button1.click();
         expect(item1.useItemStore.getState().isOpen).toBe(true);
         expect(item2.useItemStore.getState().isOpen).toBe(false);
+        expect(button1.getAttribute("aria-expanded")).toBe("true");
+        expect(button2.getAttribute("aria-expanded")).toBe("false");
       } else {
         throw new Error("Required elements not found in DOM");
       }
@@ -638,15 +744,17 @@ describe("Accordion Components", () => {
         'ui-accordion-item[value="item2"] button'
       ) as HTMLButtonElement;
 
-      if (button2) {
-        button2.click();
-        expect(accordion.getAttribute("value")).toBe("item2");
-      } else {
+      if (!button2) {
         throw new Error("Button not found in DOM");
       }
+
+      // Natural user interaction should update accordion value attribute
+      button2.click();
+      expect(accordion.getAttribute("value")).toBe("item2");
+      expect(accordion.useRootStore.getState().value).toBe("item2");
     });
 
-    it("should emit onValueChange events during interactions", async () => {
+    it("should emit onValueChange events through subscription system during interactions", async () => {
       const button2 = document.querySelector(
         'ui-accordion-item[value="item2"] button'
       ) as HTMLButtonElement;
@@ -654,10 +762,12 @@ describe("Accordion Components", () => {
       return new Promise<void>((resolve) => {
         accordion.addEventListener("onValueChange", (event: Event) => {
           const customEvent = event as CustomEvent;
+          // Event should be emitted via subscription system when user interacts
           expect(customEvent.detail.value).toBe("item2");
           resolve();
         });
 
+        // Natural user interaction triggers subscription chain and event emission
         button2.click();
       });
     });
