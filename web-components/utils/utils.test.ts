@@ -19,130 +19,90 @@ describe('Utils', () => {
     }
   })
 
-  // JP: 単一要素への属性設定
-  describe('setAttrsElement', () => {
-    // JP: 1つの要素に属性を設定できる
-    it('should set attributes on a single element', () => {
-      setAttrsElement(element, {
-        'data-test': 'value',
-        'aria-label': 'test label',
-        'class': 'test-class'
-      })
-
-      expect(element.getAttribute('data-test')).toBe('value')
-      expect(element.getAttribute('aria-label')).toBe('test label')
-      expect(element.getAttribute('class')).toBe('test-class')
-    })
-
-    // JP: 値が undefined の属性は削除する
-    it('should remove attributes when value is undefined', () => {
-      element.setAttribute('data-test', 'initial-value')
-      element.setAttribute('class', 'initial-class')
-
-      setAttrsElement(element, {
-        'data-test': undefined,
-        'class': 'new-class'
-      })
-
-      expect(element.hasAttribute('data-test')).toBe(false)
-      expect(element.getAttribute('class')).toBe('new-class')
-    })
-
-    // JP: null 要素でも例外なく処理できる
-    it('should handle null element gracefully', () => {
-      expect(() => {
-        setAttrsElement(null, { 'data-test': 'value' })
-      }).not.toThrow()
-    })
-
-    // JP: 空オブジェクトの入力でも問題ない
-    it('should handle empty attributes object', () => {
-      setAttrsElement(element, {})
-      expect(element.attributes.length).toBe(0)
-    })
-
-    // JP: 真偽値的な属性値の扱い
-    it('should handle boolean-like attribute values', () => {
-      setAttrsElement(element, {
-        'disabled': '',
-        'hidden': 'true',
-        'aria-expanded': 'false'
-      })
-
-      expect(element.getAttribute('disabled')).toBe('')
-      expect(element.getAttribute('hidden')).toBe('true')
-      expect(element.getAttribute('aria-expanded')).toBe('false')
-    })
-  })
-
-  // JP: 複数要素への属性設定
-  describe('setAttrsElements', () => {
-    // JP: 複数要素に一括で属性を設定できる
-    it('should set attributes on multiple elements', () => {
-      setAttrsElements(elements, {
-        'data-test': 'batch-value',
-        'class': 'shared-class'
-      })
-
-      for (const el of elements) {
-        expect(el.getAttribute('data-test')).toBe('batch-value')
-        expect(el.getAttribute('class')).toBe('shared-class')
+  // JP: setAttrsElement / setAttrsElements の共通パターンをまとめて検証
+  describe.each([
+    {
+      label: 'single',
+      apply: (targets: HTMLElement[], attrs: Record<string, string | undefined>) => setAttrsElement(targets[0], attrs),
+      prepare: (element: HTMLElement, elements: HTMLElement[]) => [element],
+      hasNullTargetCase: true
+    },
+    {
+      label: 'multiple',
+      apply: (targets: HTMLElement[], attrs: Record<string, string | undefined>) => setAttrsElements(targets, attrs),
+      prepare: (_: HTMLElement, elements: HTMLElement[]) => elements,
+      hasNullTargetCase: false
+    }
+  ])('setAttrs (%s)', ({ apply, prepare, label, hasNullTargetCase }) => {
+    // JP: 属性の設定
+    it('sets attributes', () => {
+      const targets = prepare(element, elements)
+      apply(targets, { 'data-test': 'value', 'aria-label': 'test', 'class': 'cls' })
+      for (const el of targets) {
+        expect(el.getAttribute('data-test')).toBe('value')
+        expect(el.getAttribute('aria-label')).toBe('test')
+        expect(el.getAttribute('class')).toBe('cls')
       }
     })
 
-    // JP: 値が undefined の属性は削除する（複数要素）
-    it('should remove attributes when value is undefined', () => {
-      for (const el of elements) {
-        el.setAttribute('data-remove', 'to-be-removed')
-        el.setAttribute('data-keep', 'to-be-kept')
+    // JP: undefined の値は属性削除
+    it('removes attributes when value is undefined', () => {
+      const targets = prepare(element, elements)
+      for (const el of targets) {
+        el.setAttribute('data-remove', 'x')
+        el.setAttribute('data-keep', 'y')
       }
-
-      setAttrsElements(elements, {
-        'data-remove': undefined,
-        'data-keep': 'updated-value'
-      })
-
-      for (const el of elements) {
+      apply(targets, { 'data-remove': undefined, 'data-keep': 'z' })
+      for (const el of targets) {
         expect(el.hasAttribute('data-remove')).toBe(false)
-        expect(el.getAttribute('data-keep')).toBe('updated-value')
+        expect(el.getAttribute('data-keep')).toBe('z')
       }
     })
 
-    // JP: 配列に null が含まれても安全に処理できる
-    it('should handle array with null elements gracefully', () => {
-      const elementsWithNulls = [elements[0], null, elements[1], null]
-
-      expect(() => {
-        setAttrsElements(elementsWithNulls, { 'data-test': 'value' })
-      }).not.toThrow()
-
-      expect(elements[0].getAttribute('data-test')).toBe('value')
-      expect(elements[1].getAttribute('data-test')).toBe('value')
+    // JP: 真偽値的な属性値
+    it('handles boolean-like attribute values', () => {
+      const targets = prepare(element, elements)
+      apply(targets, { 'disabled': '', 'hidden': 'true', 'aria-expanded': 'false' })
+      for (const el of targets) {
+        expect(el.getAttribute('disabled')).toBe('')
+        expect(el.getAttribute('hidden')).toBe('true')
+        expect(el.getAttribute('aria-expanded')).toBe('false')
+      }
     })
 
-    // JP: 空配列でも問題ない
-    it('should handle empty elements array', () => {
-      expect(() => {
-        setAttrsElements([], { 'data-test': 'value' })
-      }).not.toThrow()
-    })
-
-    // JP: 異なる要素型の混在にも対応
-    it('should handle mixed element types', () => {
-      const button = document.createElement('button')
-      const input = document.createElement('input')
-      const mixedElements = [button, input]
-
-      setAttrsElements(mixedElements, {
-        'data-component': 'form-control',
-        'data-testid': 'input-element'
+    // JP: 個別ケース: null 要素
+    if (hasNullTargetCase) {
+      it('handles null element gracefully (single only)', () => {
+        expect(() => setAttrsElement(null, { 'data-test': 'value' })).not.toThrow()
       })
 
-      for (const el of mixedElements) {
-        expect(el.getAttribute('data-component')).toBe('form-control')
-        expect(el.getAttribute('data-testid')).toBe('input-element')
-      }
-    })
+      it('handles empty attributes object (single only)', () => {
+        setAttrsElement(element, {})
+        expect(element.attributes.length).toBe(0)
+      })
+    } else {
+      it('handles array with null elements gracefully (multiple only)', () => {
+        const elementsWithNulls = [elements[0], null, elements[1], null]
+        expect(() => setAttrsElements(elementsWithNulls, { 'data-test': 'value' })).not.toThrow()
+        expect(elements[0].getAttribute('data-test')).toBe('value')
+        expect(elements[1].getAttribute('data-test')).toBe('value')
+      })
+
+      it('handles empty elements array (multiple only)', () => {
+        expect(() => setAttrsElements([], { 'data-test': 'value' })).not.toThrow()
+      })
+
+      it('handles mixed element types (multiple only)', () => {
+        const button = document.createElement('button')
+        const input = document.createElement('input')
+        const mixedElements = [button, input]
+        setAttrsElements(mixedElements, { 'data-component': 'form-control', 'data-testid': 'input-element' })
+        for (const el of mixedElements) {
+          expect(el.getAttribute('data-component')).toBe('form-control')
+          expect(el.getAttribute('data-testid')).toBe('input-element')
+        }
+      })
+    }
   })
 
   // JP: cloak 属性の削除

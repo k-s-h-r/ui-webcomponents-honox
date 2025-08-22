@@ -1,4 +1,4 @@
-// biome-ignore-all lint/style/noNonNullAssertion
+// biome-ignore-all lint/style/noNonNullAssertion: allowed
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
@@ -39,7 +39,7 @@ describe("Accordion Components (simplified)", () => {
     it.each([
       { mode: "single", value: "item1", open: ["item1"] },
       { mode: "multiple", value: "item1,item2", open: ["item1", "item2"] }
-    // JP: mode/value 属性の解釈
+      // JP: mode/value 属性の解釈
     ])("parses mode/value: %o", ({ mode, value, open }) => {
       const { root } = setupAccordion({ mode: mode as any, value });
       for (const v of ["item1", "item2"]) {
