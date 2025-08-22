@@ -1,0 +1,9 @@
+model = "gpt-5"
+
+# モデルがどれだけ“考える”か
+# 使える値: "none" | "low" | "medium" | "high"
+model_reasoning_effort = "medium"
+
+# 思考サマリー（要約ログ）を表示するか
+# 使える値: "auto" | "none"
+model_reasoning_summary = "auto"
